@@ -23,14 +23,6 @@ public final class OrderBook {
         return asks;
     }
 
-    public int bidOrderCount() {
-        return bids.size();
-    }
-
-    public int askOrderCount() {
-        return asks.size();
-    }
-
     static final class BookOrder {
         private final Order order;
         private long remainingQuantity;

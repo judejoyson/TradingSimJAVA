@@ -31,12 +31,6 @@ public final class PortfolioManager {
         return new AccountSnapshot(accountId, account.cash, Map.copyOf(account.positions));
     }
 
-    public Map<String, AccountSnapshot> snapshots() {
-        Map<String, AccountSnapshot> result = new LinkedHashMap<>();
-        accounts.keySet().forEach(id -> result.put(id, snapshot(id)));
-        return Map.copyOf(result);
-    }
-
     private Account account(String accountId) {
         Account account = accounts.get(accountId);
         if (account == null) {

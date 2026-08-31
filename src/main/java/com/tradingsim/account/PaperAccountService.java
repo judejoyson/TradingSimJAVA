@@ -63,7 +63,7 @@ public final class PaperAccountService {
             throw new BadRequestException("The order total is too small to execute.");
         }
         if (side == TradeSide.BUY) {
-            buy(symbol, quantity, executionPrice, total);
+            buy(symbol, quantity, total);
         } else {
             sell(symbol, quantity, executionPrice, total);
         }
@@ -106,7 +106,7 @@ public final class PaperAccountService {
         return snapshot();
     }
 
-    private void buy(String symbol, int quantity, BigDecimal price, BigDecimal total) {
+    private void buy(String symbol, int quantity, BigDecimal total) {
         if (cash.compareTo(total) < 0) {
             throw new BadRequestException(
                     "Not enough cash. This order costs " + total + " but only " + cash + " is available.");

@@ -33,10 +33,6 @@ public final class SimulatorEngine {
         }
     }
 
-    public int pendingEventCount() {
-        return events.size();
-    }
-
     private record ScheduledEvent(Instant timestamp, long sequence, Runnable action) {
     }
 }
