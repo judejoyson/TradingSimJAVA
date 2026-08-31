@@ -42,7 +42,6 @@ public final class TradingSimulator {
     }
 
     private void onMarketData(MarketDataPoint marketData) {
-        report.recordMarketDataPoint();
         for (Strategy strategy : strategies) {
             strategy.onMarketData(
                     marketData,
@@ -61,7 +60,6 @@ public final class TradingSimulator {
                 request.quantity(),
                 request.limitPrice(),
                 engine.currentTime());
-        report.recordOrder();
         List<Trade> trades = matchingEngine.submit(order);
         trades.forEach(portfolios::apply);
         report.recordTrades(trades);
