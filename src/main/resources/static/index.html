@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Practice stock day trading with live market quotes and simulated money.">
+    <title>MarketLab Paper Trading</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+</head>
+<body>
+<header class="site-header">
+    <a class="brand" href="/" aria-label="MarketLab home">
+        <span class="brand-mark">M</span>
+        <span>MarketLab</span>
+    </a>
+    <div class="market-status">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>Live quotes via Finnhub</span>
+    </div>
+</header>
+
+<main class="app-shell">
+    <section class="hero">
+        <div>
+            <p class="eyebrow">Paper trading workspace</p>
+            <h1>Learn the market.<br><span>Risk nothing.</span></h1>
+            <p class="hero-copy">Practice buying and selling stocks using current market quotes and $100,000 in simulated cash.</p>
+        </div>
+        <div class="account-summary" aria-label="Account summary">
+            <article>
+                <span>Available cash</span>
+                <strong id="cash-value">—</strong>
+            </article>
+            <article>
+                <span>Position cost</span>
+                <strong id="position-cost">—</strong>
+            </article>
+            <article>
+                <span>Realized P&amp;L</span>
+                <strong id="realized-pnl">—</strong>
+            </article>
+        </div>
+    </section>
+
+    <div id="message" class="message" role="status" aria-live="polite" hidden></div>
+
+    <section class="workspace-grid">
+        <div class="market-column">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Watchlist</p>
+                    <h2>Market snapshot</h2>
+                </div>
+                <form id="symbol-form" class="symbol-form">
+                    <label class="sr-only" for="new-symbol">Add stock symbol</label>
+                    <input id="new-symbol" name="symbol" maxlength="10" placeholder="Add symbol" autocomplete="off">
+                    <button type="submit" class="button button-secondary">Add</button>
+                </form>
+            </div>
+            <div id="quote-grid" class="quote-grid" aria-live="polite"></div>
+
+            <div class="panel">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Portfolio</p>
+                        <h2>Open positions</h2>
+                    </div>
+                    <button id="reset-account" class="text-button" type="button">Reset account</button>
+                </div>
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Shares</th>
+                            <th>Avg. price</th>
+                            <th>Cost basis</th>
+                            <th>Realized P&amp;L</th>
+                        </tr>
+                        </thead>
+                        <tbody id="positions-body"></tbody>
+                    </table>
+                </div>
+                <p id="empty-positions" class="empty-state">No positions yet. Place your first simulated buy order.</p>
+            </div>
+        </div>
+
+        <aside class="trade-column">
+            <section class="panel trade-ticket">
+                <p class="eyebrow">Order ticket</p>
+                <h2>Place a market order</h2>
+                <p class="helper-text">Orders fill immediately at the latest Finnhub price.</p>
+                <form id="order-form">
+                    <label for="order-symbol">Stock symbol</label>
+                    <input id="order-symbol" name="symbol" maxlength="10" value="AAPL" required autocomplete="off">
+
+                    <fieldset>
+                        <legend>Side</legend>
+                        <div class="side-selector">
+                            <label>
+                                <input type="radio" name="side" value="BUY" checked>
+                                <span>Buy</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="side" value="SELL">
+                                <span>Sell</span>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <label for="order-quantity">Number of shares</label>
+                    <input id="order-quantity" name="quantity" type="number" min="1" max="100000" value="10" required>
+
+                    <button id="submit-order" type="submit" class="button button-primary">Review and place order</button>
+                </form>
+            </section>
+
+            <section class="panel">
+                <p class="eyebrow">Activity</p>
+                <h2>Recent trades</h2>
+                <div id="trade-history" class="trade-history"></div>
+                <p id="empty-trades" class="empty-state">Executed trades will appear here.</p>
+            </section>
+        </aside>
+    </section>
+</main>
+
+<footer>
+    Educational simulator only. Quotes may be delayed. This is not investment advice.
+</footer>
+</body>
+</html>
