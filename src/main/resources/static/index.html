@@ -3,131 +3,102 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Practice stock day trading with live market quotes and simulated money.">
-    <title>MarketLab Paper Trading</title>
-    <link rel="stylesheet" href="/styles.css">
-    <script src="/app.js" defer></script>
+    <meta name="description" content="Practice trade planning with historical market replay.">
+    <title>ReplayLab Trading Simulator</title>
+    <link rel="stylesheet" href="/simulator.css">
+    <script src="/home.js" defer></script>
 </head>
-<body>
-<header class="site-header">
-    <a class="brand" href="/" aria-label="MarketLab home">
-        <span class="brand-mark">M</span>
-        <span>MarketLab</span>
+<body class="home-page">
+<header class="topbar home-topbar">
+    <a class="brand" href="/">
+        <span class="brand-icon" aria-hidden="true">R</span>
+        <span>ReplayLab</span>
     </a>
-    <div class="market-status">
-        <span class="status-dot" aria-hidden="true"></span>
-        <span>Live quotes via Finnhub</span>
-    </div>
+    <span class="training-badge">Risk-free practice</span>
 </header>
 
-<main class="app-shell">
-    <section class="hero">
-        <div>
-            <p class="eyebrow">Paper trading workspace</p>
-            <h1>Learn the market.<br><span>Risk nothing.</span></h1>
-            <p class="hero-copy">Practice buying and selling stocks using current market quotes and $100,000 in simulated cash.</p>
+<main>
+    <section class="home-hero">
+        <div class="hero-copy">
+            <p class="eyebrow">Historical market simulator</p>
+            <h1>Practice the decision,<br><em>not the prediction.</em></h1>
+            <p class="hero-description">
+                Build a trade plan, replay unseen candles, and learn how price
+                behaves around your entry, stop-loss, and target.
+            </p>
+            <div class="feature-row" aria-label="Simulator features">
+                <span>Deterministic sessions</span>
+                <span>Realistic candles</span>
+                <span>Instant review</span>
+            </div>
         </div>
-        <div class="account-summary" aria-label="Account summary">
-            <article>
-                <span>Available cash</span>
-                <strong id="cash-value">—</strong>
-            </article>
-            <article>
-                <span>Position cost</span>
-                <strong id="position-cost">—</strong>
-            </article>
-            <article>
-                <span>Realized P&amp;L</span>
-                <strong id="realized-pnl">—</strong>
-            </article>
-        </div>
+
+        <section class="setup-card" aria-labelledby="setup-title">
+            <div class="setup-heading">
+                <span class="step-number">01</span>
+                <div>
+                    <p class="eyebrow">New simulation</p>
+                    <h2 id="setup-title">Choose your market</h2>
+                </div>
+            </div>
+
+            <form id="simulation-form">
+                <fieldset>
+                    <legend>Asset class</legend>
+                    <div id="market-options" class="market-options">
+                        <div class="loading-choice">Loading markets…</div>
+                    </div>
+                </fieldset>
+
+                <label for="instrument">Instrument</label>
+                <div class="select-wrap">
+                    <select id="instrument" name="symbol" required disabled>
+                        <option>Loading…</option>
+                    </select>
+                </div>
+
+                <fieldset>
+                    <legend>Chart timeframe</legend>
+                    <div id="timeframe-options" class="timeframe-options"></div>
+                </fieldset>
+
+                <div id="home-error" class="inline-alert" role="alert" hidden></div>
+
+                <button id="start-button" class="primary-button start-button" type="submit" disabled>
+                    <span>Start simulation</span>
+                    <span aria-hidden="true">→</span>
+                </button>
+            </form>
+        </section>
     </section>
 
-    <div id="message" class="message" role="status" aria-live="polite" hidden></div>
-
-    <section class="workspace-grid">
-        <div class="market-column">
-            <div class="section-heading">
-                <div>
-                    <p class="eyebrow">Watchlist</p>
-                    <h2>Market snapshot</h2>
-                </div>
-                <form id="symbol-form" class="symbol-form">
-                    <label class="sr-only" for="new-symbol">Add stock symbol</label>
-                    <input id="new-symbol" name="symbol" maxlength="10" placeholder="Add symbol" autocomplete="off">
-                    <button type="submit" class="button button-secondary">Add</button>
-                </form>
-            </div>
-            <div id="quote-grid" class="quote-grid" aria-live="polite"></div>
-
-            <div class="panel">
-                <div class="section-heading">
-                    <div>
-                        <p class="eyebrow">Portfolio</p>
-                        <h2>Open positions</h2>
-                    </div>
-                    <button id="reset-account" class="text-button" type="button">Reset account</button>
-                </div>
-                <div class="table-scroll">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>Symbol</th>
-                            <th>Shares</th>
-                            <th>Avg. price</th>
-                            <th>Cost basis</th>
-                            <th>Realized P&amp;L</th>
-                        </tr>
-                        </thead>
-                        <tbody id="positions-body"></tbody>
-                    </table>
-                </div>
-                <p id="empty-positions" class="empty-state">No positions yet. Place your first simulated buy order.</p>
-            </div>
+    <section class="how-it-works" aria-labelledby="how-title">
+        <div>
+            <p class="eyebrow">The training loop</p>
+            <h2 id="how-title">Plan. Replay. Review.</h2>
         </div>
-
-        <aside class="trade-column">
-            <section class="panel trade-ticket">
-                <p class="eyebrow">Order ticket</p>
-                <h2>Place a market order</h2>
-                <p class="helper-text">Orders fill immediately at the latest Finnhub price.</p>
-                <form id="order-form">
-                    <label for="order-symbol">Stock symbol</label>
-                    <input id="order-symbol" name="symbol" maxlength="10" value="AAPL" required autocomplete="off">
-
-                    <fieldset>
-                        <legend>Side</legend>
-                        <div class="side-selector">
-                            <label>
-                                <input type="radio" name="side" value="BUY" checked>
-                                <span>Buy</span>
-                            </label>
-                            <label>
-                                <input type="radio" name="side" value="SELL">
-                                <span>Sell</span>
-                            </label>
-                        </div>
-                    </fieldset>
-
-                    <label for="order-quantity">Number of shares</label>
-                    <input id="order-quantity" name="quantity" type="number" min="1" max="100000" value="10" required>
-
-                    <button id="submit-order" type="submit" class="button button-primary">Review and place order</button>
-                </form>
-            </section>
-
-            <section class="panel">
-                <p class="eyebrow">Activity</p>
-                <h2>Recent trades</h2>
-                <div id="trade-history" class="trade-history"></div>
-                <p id="empty-trades" class="empty-state">Executed trades will appear here.</p>
-            </section>
-        </aside>
+        <ol class="process-list">
+            <li>
+                <span>01</span>
+                <strong>Set your levels</strong>
+                <p>Double-click the chart to place an entry, stop, and target.</p>
+            </li>
+            <li>
+                <span>02</span>
+                <strong>Reveal the market</strong>
+                <p>Play unseen candles at the speed that fits your practice.</p>
+            </li>
+            <li>
+                <span>03</span>
+                <strong>Study the result</strong>
+                <p>Review the outcome, risk-to-reward ratio, and final P&amp;L.</p>
+            </li>
+        </ol>
     </section>
 </main>
 
-<footer>
-    Educational simulator only. Quotes may be delayed. This is not investment advice.
+<footer class="home-footer">
+    Educational simulation only. Generated market data is not investment advice.
 </footer>
 </body>
 </html>

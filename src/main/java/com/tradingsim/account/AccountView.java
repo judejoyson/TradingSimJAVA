@@ -6,6 +6,9 @@ import java.util.List;
 public record AccountView(
         BigDecimal startingCash,
         BigDecimal cash,
+        BigDecimal positionsMarketValue,
+        BigDecimal totalEquity,
+        BigDecimal unrealizedProfitLoss,
         BigDecimal realizedProfitLoss,
         List<PositionView> positions,
         List<ExecutedTrade> recentTrades) {

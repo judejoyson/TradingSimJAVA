@@ -1,207 +1,206 @@
-# MarketLab stock day-trading simulator
+# ReplayLab trading simulator
 
-This is a beginner-friendly paper-trading website. The browser uses plain HTML,
-CSS, and JavaScript. A Java 17 Spring Boot server keeps the Finnhub key private,
-retrieves current stock quotes, validates simulated market orders, and tracks an
-in-memory account that starts with $100,000.
+ReplayLab is a historical market-replay trainer built with Java 17, Spring Boot,
+plain HTML/CSS/JavaScript, and TradingView Lightweight Charts. It reveals
+candles one at a time so a learner can practice defining an entry, stop-loss,
+and take-profit without risking money.
 
-> This project uses Finnhub's documented API rather than scraping a finance
-> website. Scraping is brittle because page HTML changes, and it can violate a
-> website's terms. Always review a data provider's license before publishing an app.
+The app intentionally uses deterministic generated OHLCV data. Every market and
+timeframe works without an API key, rate limit, paid data plan, or network call
+to a market-data vendor.
 
-## 1. Understand the request flow
+## What the application does
 
-```text
-Browser (HTML/CSS/JavaScript)
-       |
-       | GET /api/quotes/AAPL or POST /api/orders
-       v
-TradingController (HTTP endpoints)
-       |
-       +--> FinnhubQuoteService --> Finnhub REST API
-       |
-       +--> TradingService --> PaperAccountService
-                              (cash, shares, trade history)
-```
+ReplayLab has two pages:
 
-The frontend and backend are served by the same Spring Boot application. This
-avoids Cross-Origin Resource Sharing (CORS) setup and makes deployment simpler.
-The API key never reaches the browser.
+1. **Home page:** Select an asset class, instrument, and candle timeframe.
+2. **Chart page:** Place a long or short trade plan directly on a candlestick
+   chart, replay hidden candles, track P&L, and review the result.
 
-## 2. Install the tools
+Available demo markets:
 
-Install:
+| Market | Instruments |
+|---|---|
+| U.S. Stocks | SPY, QQQ, AAPL |
+| Forex | EUR/USD, GBP/USD, USD/JPY |
+| Crypto | BTC/USD, ETH/USD, SOL/USD |
 
-1. [JDK 17 or newer](https://adoptium.net/)
-2. [Maven 3.9 or newer](https://maven.apache.org/download.cgi)
-3. An editor such as IntelliJ IDEA Community Edition or Visual Studio Code
-4. A free [Finnhub account and API key](https://finnhub.io/)
+Every instrument supports 1-minute, 5-minute, 15-minute, and 1-hour candles.
 
-Confirm Java and Maven in PowerShell:
+## Run the project
 
-```powershell
-java -version
-mvn -version
-```
+Requirements:
 
-## 3. Configure the live stock-data key
+- JDK 17 or newer
+- Maven 3.9 or newer
+- Internet access for the Lightweight Charts JavaScript file
 
-Set the key in the terminal that will start the app:
-
-```powershell
-$env:FINNHUB_API_KEY = "paste-your-key-here"
-```
-
-Do not put a real key in Git or JavaScript. `application.properties` reads the
-environment variable with:
-
-```properties
-tradingsim.finnhub.api-key=${FINNHUB_API_KEY:}
-```
-
-The empty value after the colon lets the application start without a key, but
-quote requests clearly report that configuration is missing.
-
-## 4. Start the application
+Start Spring Boot:
 
 ```powershell
 mvn spring-boot:run
 ```
 
-Open <http://localhost:8080>. Run the tests with:
+Open <http://localhost:8080>.
+
+Run all tests:
 
 ```powershell
 mvn test
 ```
 
-Spring Boot compiles Java, starts an embedded Tomcat web server, and serves files
-from `src/main/resources/static`.
+The replay portion does not require `FINNHUB_API_KEY`. Older live-quote API code
+remains in the project for future paper-trading features, but the two-page replay
+experience does not call it.
 
-## 5. Learn the project one layer at a time
+## How to use a replay
 
-### Build configuration: `pom.xml`
+1. Choose a market, instrument, and timeframe on the home page.
+2. Choose **Long** or **Short** and enter a position size.
+3. Double-click the chart to set the entry price.
+4. Double-click above and below entry to set the stop-loss and take-profit:
+   - Long: target above entry, stop below entry.
+   - Short: stop above entry, target below entry.
+5. Press **Play**. The trade remains pending until a candle touches the entry.
+6. Watch P&L update while the trade is open.
+7. The replay stops when price hits the stop, target, or end of the session.
+8. Review the result and replay the same data or select another market.
 
-Maven reads this file. The Spring Boot parent selects compatible dependency
-versions. `spring-boot-starter-web` supplies REST controllers, JSON conversion,
-and embedded Tomcat. `spring-boot-starter-validation` validates incoming orders.
-`spring-boot-starter-test` supplies JUnit and Spring testing tools.
+If one candle touches both the stop and target, ReplayLab chooses the stop-loss.
+OHLCV candles do not reveal the order of price movement inside the candle, so
+the conservative outcome prevents unrealistically favorable results.
 
-### Application entry point: `TradingSimulatorApp.java`
+## Architecture
 
-`main` calls `SpringApplication.run`. `@SpringBootApplication` tells Spring to
-find classes annotated with `@Service` and `@RestController`, instantiate them,
-and connect their constructor parameters.
+```text
+Browser
+  index.html + home.js
+       |
+       | GET /api/replay/options
+       | navigate with market, symbol, timeframe
+       v
+  chart.html + chart.js + Lightweight Charts
+       |
+       | GET /api/replay/session
+       v
+Spring Boot
+  ReplayController
+       |
+  ReplayDataService
+       |
+  ReplayCatalog + deterministic OHLCV generator
+```
 
-### Configuration: `TradingSimulatorProperties.java`
+Spring Boot serves both the static frontend and JSON API from one application.
+No CORS configuration or separate frontend development server is required.
 
-This record maps every `tradingsim.*` property from `application.properties` to
-typed Java values. Change `tradingsim.starting-cash` to alter the initial balance,
-or `tradingsim.quote-cache-duration` to alter the cache time.
+## Backend walkthrough
 
-### Market data: `quote/`
+### `ReplayCatalog`
 
-`QuoteService` is an interface: the rest of the application asks it for a quote
-without knowing which vendor supplies it. `FinnhubQuoteService` implements that
-interface with Spring's `RestClient`.
+`ReplayCatalog` is the single source of truth for markets, instruments, price
+precision, starting prices, volatility, and supported timeframes. Add a new
+instrument by registering another `InstrumentDefinition`.
 
-Finnhub returns short JSON fields such as `c` (current price) and `dp` (percent
-change). The private `FinnhubQuote` record maps those fields and converts them to
-the clearer public `StockQuote` shape returned to the browser.
+### `ReplayDataService`
 
-Quotes are cached for 10 seconds. Without this cache, every browser refresh could
-consume another Finnhub request and quickly exceed a free account's rate limit.
-This is near-real-time polling, not exchange-grade streaming data.
+The service validates selections through `ReplayCatalog` and creates 360 candles.
+The random-number seed comes from market, symbol, and timeframe, so the same
+selection always produces the same candles.
 
-### Trading account: `account/`
+Each candle follows the required OHLC relationship:
 
-`PaperAccountService` owns cash, positions, and recent trades. Its important rules:
+```text
+high >= open and close
+low  <= open and close
+```
 
-1. A buy fails if the account does not have enough simulated cash.
-2. A sell fails if the account does not own enough shares; short selling is off.
-3. Market orders fill at the latest Finnhub current price.
-4. Average cost is recalculated after buys.
-5. Realized profit/loss is recorded after sells.
-6. `synchronized` protects the in-memory account from simultaneous web requests.
+The generator also adds changing trend regimes, cyclical movement, random
+volatility, wicks, and volume. It is useful for application development and
+repeatable practice, but it is not a model of a real exchange.
 
-`TradingService` coordinates a trade: it obtains a current quote first and then
-passes the price to the account.
+### `ReplayController`
 
-### Web API: `web/`
-
-`TradingController` exposes:
+The controller exposes two endpoints:
 
 | Method | URL | Purpose |
 |---|---|---|
-| `GET` | `/api/quotes/{symbol}` | Get one current quote |
-| `GET` | `/api/account` | Get cash, positions, and trades |
-| `POST` | `/api/orders` | Execute a simulated market order |
-| `POST` | `/api/account/reset` | Reset the paper account |
+| `GET` | `/api/replay/options` | Markets, instruments, and timeframes |
+| `GET` | `/api/replay/session?market=STOCKS&symbol=SPY&timeframe=5m` | One replay dataset |
 
-An order request looks like:
+Invalid market/instrument combinations return an HTTP 400 response through the
+existing `ApiExceptionHandler`.
 
-```json
-{
-  "symbol": "AAPL",
-  "side": "BUY",
-  "quantity": 10
-}
+## Frontend walkthrough
+
+### `index.html` and `home.js`
+
+The home page requests available selections from Java instead of duplicating
+them in JavaScript. It creates the market and timeframe controls, updates the
+instrument list, and navigates to:
+
+```text
+/chart.html?market=STOCKS&symbol=SPY&timeframe=5m
 ```
 
-`ApiExceptionHandler` turns validation, balance, position, and provider errors
-into useful JSON instead of exposing Java stack traces.
+### `chart.html` and `chart.js`
 
-### Browser interface: `static/`
+The chart page loads Lightweight Charts from a pinned CDN version. It initially
+shows 70 candles and keeps the remaining candles hidden.
 
-`index.html` defines the semantic page structure. `styles.css` controls layout,
-colors, responsiveness, and component states. `app.js`:
+`chart.js` manages the simulation using these states:
 
-1. Calls the backend with `fetch`.
-2. Refreshes watchlist prices every 15 seconds.
-3. Stores watchlist symbols in browser `localStorage`.
-4. Sends order JSON to `/api/orders`.
-5. Re-renders account data from each server response.
-
-The browser never calls Finnhub directly. If it did, anyone could inspect the
-page and steal the API key.
-
-## 6. Try the API without the website
-
-With the app running:
-
-```powershell
-Invoke-RestMethod http://localhost:8080/api/quotes/AAPL
-
-Invoke-RestMethod `
-  -Method Post `
-  -Uri http://localhost:8080/api/orders `
-  -ContentType "application/json" `
-  -Body '{"symbol":"AAPL","side":"BUY","quantity":10}'
+```text
+PLANNING -> READY -> WAITING -> OPEN -> CLOSED
 ```
 
-Testing the API separately helps determine whether a bug is in Java or JavaScript.
+- **PLANNING:** The user is defining three price levels.
+- **READY:** All levels exist.
+- **WAITING:** Replay started, but price has not touched entry.
+- **OPEN:** Entry was touched and current P&L updates each candle.
+- **CLOSED:** Stop, target, or session end resolved the trade.
 
-## 7. Important limitations
+P&L uses:
 
-- State is in memory. Restarting the server resets the account.
-- There is one shared account for every browser user.
-- Orders use a current quote, not a real exchange order book, bid/ask spread,
-  slippage, fees, latency, halts, or partial fills.
-- Finnhub's free plan can be delayed, rate-limited, or restricted by exchange.
-- This is educational software, not financial advice or a brokerage.
+```text
+long P&L  = (current price - entry price) × quantity
+short P&L = (entry price - current price) × quantity
+```
 
-## 8. Safe next milestones
+The replay uses `setTimeout` rather than `setInterval`. After each candle, it
+schedules exactly one next update. This prevents overlapping callbacks when the
+user changes speed or pauses the simulation.
 
-Build these in order so each step teaches one new concept:
+### `simulator.css`
 
-1. Add unrealized P&L by marking positions with current quotes.
-2. Store users, accounts, and trades in PostgreSQL with Spring Data JPA.
-3. Add Spring Security login so each user has a separate account.
-4. Model limit and stop orders plus trading fees and slippage.
-5. Add historical candles and a chart library.
-6. Add Finnhub WebSocket streaming if your data plan permits it.
-7. Deploy the server and set `FINNHUB_API_KEY` in the host's secret manager.
+One responsive stylesheet supports both pages. On narrow screens, the chart and
+trade panel stack vertically so the simulator remains usable.
 
-The original event-driven CSV simulator remains under the existing
-`engine`, `market`, `order`, `portfolio`, and `strategy` packages. It can later
-power historical backtesting while this Spring Boot layer handles interactive
-paper trading.
+## Replacing generated data later
+
+Keep the `ReplaySession` JSON shape and replace only the data implementation.
+A real provider adapter should:
+
+1. Fetch historical OHLCV candles server-side.
+2. Map provider values to `ReplayCandle`.
+3. Sort candles from oldest to newest.
+4. Validate OHLC relationships and remove duplicates.
+5. Cache results to respect provider rate limits.
+6. Keep API credentials in environment variables, never browser JavaScript.
+
+Twelve Data or Alpha Vantage can supply data, but confirm that the chosen plan
+allows the asset classes, intraday intervals, history depth, and usage required
+by your deployment.
+
+## Suggested next improvements
+
+1. Drag chart lines after placing them.
+2. Add market and limit entry modes.
+3. Track a journal across multiple simulation sessions.
+4. Calculate win rate, expectancy, drawdown, and average risk-to-reward.
+5. Add chart volume and technical indicators.
+6. Replace generated candles with a cached historical-data provider.
+7. Store users and results in PostgreSQL with Spring Data JPA.
+8. Add Spring Security so each learner has a private journal.
+
+ReplayLab is educational software, not financial advice or a brokerage.

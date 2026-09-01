@@ -14,8 +14,8 @@
     <groupId>com.tradingsim</groupId>
     <artifactId>trading-sim</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>Stock Day Trading Simulator</name>
-    <description>A Spring Boot paper-trading web application</description>
+    <name>ReplayLab Trading Simulator</name>
+    <description>A Spring Boot historical market-replay trainer</description>
 
     <properties>
         <java.version>17</java.version>
