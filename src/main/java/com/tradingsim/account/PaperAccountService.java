@@ -89,9 +89,15 @@ public final class PaperAccountService {
                 .sorted(Map.Entry.comparingByKey())
                 .map(entry -> entry.getValue().toView(entry.getKey()))
                 .toList();
+        BigDecimal positionsCost = positionViews.stream()
+                .map(PositionView::costBasis)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         return new AccountView(
                 startingCash,
                 cash,
+                money(positionsCost),
+                money(cash.add(positionsCost)),
+                money(BigDecimal.ZERO),
                 realizedProfitLoss,
                 positionViews,
                 List.copyOf(trades));
@@ -154,6 +160,10 @@ public final class PaperAccountService {
                     quantity,
                     averagePrice,
                     money(averagePrice.multiply(BigDecimal.valueOf(quantity))),
+                    averagePrice,
+                    money(averagePrice.multiply(BigDecimal.valueOf(quantity))),
+                    money(BigDecimal.ZERO),
+                    money(BigDecimal.ZERO),
                     realizedProfitLoss);
         }
     }

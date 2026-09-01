@@ -15,11 +15,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public final class FinnhubQuoteService implements QuoteService {
+public final class FinnhubQuoteService implements QuoteService, StockDetailsService {
     private final RestClient restClient;
     private final TradingSimulatorProperties properties;
     private final Clock clock;
     private final Map<String, CachedQuote> cache = new ConcurrentHashMap<>();
+    private final Map<String, CachedDetails> detailsCache = new ConcurrentHashMap<>();
 
     @Autowired
     public FinnhubQuoteService(
@@ -54,19 +55,29 @@ public final class FinnhubQuoteService implements QuoteService {
         return quote;
     }
 
-    private StockQuote fetchQuote(String symbol) {
-        String apiKey = properties.finnhub().apiKey();
-        if (apiKey == null || apiKey.isBlank()) {
-            throw new MarketDataException(
-                    "FINNHUB_API_KEY is not configured. See the README setup instructions.");
+    @Override
+    public StockDetails getDetails(String requestedSymbol) {
+        String symbol = Symbols.normalize(requestedSymbol);
+        Instant now = clock.instant();
+        CachedDetails cached = detailsCache.get(symbol);
+        if (cached != null && cached.fetchedAt().plusSeconds(60).isAfter(now)) {
+            return cached.details();
         }
 
+        StockDetails details = new StockDetails(
+                getQuote(symbol),
+                fetchProfile(symbol));
+        detailsCache.put(symbol, new CachedDetails(details, now));
+        return details;
+    }
+
+    private StockQuote fetchQuote(String symbol) {
         try {
             FinnhubQuote response = restClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/quote")
                             .queryParam("symbol", symbol)
-                            .queryParam("token", apiKey)
+                            .queryParam("token", apiKey())
                             .build())
                     .retrieve()
                     .body(FinnhubQuote.class);
@@ -82,7 +93,40 @@ public final class FinnhubQuoteService implements QuoteService {
         }
     }
 
+    private CompanyProfile fetchProfile(String symbol) {
+        try {
+            FinnhubProfile response = restClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/stock/profile2")
+                            .queryParam("symbol", symbol)
+                            .queryParam("token", apiKey())
+                            .build())
+                    .retrieve()
+                    .body(FinnhubProfile.class);
+            if (response == null || response.name() == null || response.name().isBlank()) {
+                throw new MarketDataException(
+                        "Finnhub returned no company profile for symbol " + symbol + ".");
+            }
+            return response.toCompanyProfile();
+        } catch (RestClientException exception) {
+            throw new MarketDataException(
+                    "Finnhub could not provide company details for " + symbol + ".", exception);
+        }
+    }
+
+    private String apiKey() {
+        String apiKey = properties.finnhub().apiKey();
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new MarketDataException(
+                    "FINNHUB_API_KEY is not configured. See the README setup instructions.");
+        }
+        return apiKey;
+    }
+
     private record CachedQuote(StockQuote quote, Instant fetchedAt) {
+    }
+
+    private record CachedDetails(StockDetails details, Instant fetchedAt) {
     }
 
     private record FinnhubQuote(
@@ -108,4 +152,34 @@ public final class FinnhubQuoteService implements QuoteService {
                     Instant.ofEpochSecond(timestamp));
         }
     }
+
+    private record FinnhubProfile(
+            String country,
+            String currency,
+            String exchange,
+            String finnhubIndustry,
+            String ipo,
+            String logo,
+            BigDecimal marketCapitalization,
+            String name,
+            BigDecimal shareOutstanding,
+            String ticker,
+            String weburl) {
+
+        private CompanyProfile toCompanyProfile() {
+            return new CompanyProfile(
+                    name,
+                    ticker,
+                    exchange,
+                    finnhubIndustry,
+                    country,
+                    currency,
+                    ipo,
+                    logo,
+                    weburl,
+                    marketCapitalization,
+                    shareOutstanding);
+        }
+    }
+
 }

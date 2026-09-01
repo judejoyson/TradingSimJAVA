@@ -7,5 +7,9 @@ public record PositionView(
         int quantity,
         BigDecimal averagePrice,
         BigDecimal costBasis,
+        BigDecimal currentPrice,
+        BigDecimal marketValue,
+        BigDecimal unrealizedProfitLoss,
+        BigDecimal unrealizedProfitLossPercent,
         BigDecimal realizedProfitLoss) {
 }
