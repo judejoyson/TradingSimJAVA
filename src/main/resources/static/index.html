@@ -9,15 +9,20 @@
     <script src="/home.js" defer></script>
 </head>
 <body class="home-page">
+<!-- Shared brand header. The chart page uses the same visual identity. -->
 <header class="topbar home-topbar">
     <a class="brand" href="/">
         <span class="brand-icon" aria-hidden="true">R</span>
         <span>ReplayLab</span>
     </a>
-    <span class="training-badge">Risk-free practice</span>
+    <nav class="home-nav" aria-label="Main navigation">
+        <a href="/backtest.html">Strategy backtester</a>
+        <span class="training-badge">Risk-free practice</span>
+    </nav>
 </header>
 
 <main>
+    <!-- The hero explains the product while the form creates a replay URL. -->
     <section class="home-hero">
         <div class="hero-copy">
             <p class="eyebrow">Historical market simulator</p>
@@ -33,6 +38,7 @@
             </div>
         </div>
 
+        <!-- home.js fills market, instrument, and timeframe choices from Java. -->
         <section class="setup-card" aria-labelledby="setup-title">
             <div class="setup-heading">
                 <span class="step-number">01</span>
@@ -72,6 +78,7 @@
         </section>
     </section>
 
+    <!-- Static onboarding helps a first-time user understand the three actions. -->
     <section class="how-it-works" aria-labelledby="how-title">
         <div>
             <p class="eyebrow">The training loop</p>

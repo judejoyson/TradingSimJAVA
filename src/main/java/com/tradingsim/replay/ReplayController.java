@@ -5,6 +5,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * HTTP boundary used by the home and chart pages.
+ *
+ * <p>Validation and candle creation remain in services, leaving this class
+ * responsible only for mapping URLs and query parameters.</p>
+ */
 @RestController
 @RequestMapping("/api/replay")
 public final class ReplayController {

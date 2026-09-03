@@ -3,6 +3,12 @@ package com.tradingsim.order;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
+/**
+ * Holds the two price-priority queues for one symbol.
+ *
+ * <p>Bids sort highest price first, asks lowest price first, and sequence
+ * breaks equal-price ties in favor of the oldest order.</p>
+ */
 public final class OrderBook {
     private static final Comparator<BookOrder> BID_PRIORITY =
             Comparator.<BookOrder, java.math.BigDecimal>comparing(order -> order.order().limitPrice())

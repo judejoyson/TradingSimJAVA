@@ -11,6 +11,9 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+/**
+ * Reads timestamp, symbol, bid, ask, and last price columns from a CSV file.
+ */
 public final class CsvMarketDataFeed implements MarketDataFeed {
     private final Path path;
 
@@ -29,6 +32,8 @@ public final class CsvMarketDataFeed implements MarketDataFeed {
                     continue;
                 }
                 MarketDataPoint point = parse(line, lineNumber);
+                // Parsing and execution are separate: the feed first populates
+                // the event queue, then SimulatorEngine decides event order.
                 engine.schedule(point.timestamp(), () -> consumer.accept(point));
             }
         }

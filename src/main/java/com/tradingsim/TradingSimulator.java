@@ -17,6 +17,14 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Connects the original event-driven backtesting components into one workflow.
+ *
+ * <p>This coordinator intentionally contains little business logic. It moves
+ * market data through strategies, matching, accounting, and reporting in that
+ * order. ReplayLab's browser-driven replay uses the {@code replay} package
+ * instead.</p>
+ */
 public final class TradingSimulator {
     private final SimulatorEngine engine = new SimulatorEngine();
     private final PortfolioManager portfolios = new PortfolioManager();
@@ -26,11 +34,17 @@ public final class TradingSimulator {
     private long nextOrderId = 1;
     private long nextOrderSequence;
 
+    /**
+     * Registers a strategy and creates the account used for all its orders.
+     */
     public void addStrategy(Strategy strategy, BigDecimal initialCash) {
         portfolios.registerAccount(strategy.accountId(), initialCash);
         strategies.add(strategy);
     }
 
+    /**
+     * Schedules every feed item and processes events until the queue is empty.
+     */
     public SimulationReport run(MarketDataFeed feed) throws IOException {
         feed.scheduleInto(engine, this::onMarketData);
         engine.run();
@@ -42,6 +56,7 @@ public final class TradingSimulator {
     }
 
     private void onMarketData(MarketDataPoint marketData) {
+        // Each strategy sees the same point before simulation time advances.
         for (Strategy strategy : strategies) {
             strategy.onMarketData(
                     marketData,
@@ -50,6 +65,8 @@ public final class TradingSimulator {
     }
 
     private void submit(String accountId, OrderRequest request) {
+        // Sequence, not wall-clock time, breaks ties between orders submitted
+        // during the same event and therefore preserves price-time priority.
         Order order = new Order(
                 nextOrderId++,
                 nextOrderSequence++,

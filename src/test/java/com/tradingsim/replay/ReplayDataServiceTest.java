@@ -18,6 +18,8 @@ class ReplayDataServiceTest {
         assertEquals(ReplayDataService.CANDLE_COUNT, first.candles().size());
         assertEquals(first.candles(), second.candles());
         assertEquals(ReplayDataService.INITIAL_BARS, first.initialBars());
+        assertEquals(2.0, first.executionProfile().spreadBps());
+        assertEquals(0.05, first.executionProfile().maxVolumeParticipationPercent());
         assertTrue(first.candles().stream().allMatch(candle ->
                 candle.low().compareTo(candle.open()) <= 0
                         && candle.low().compareTo(candle.close()) <= 0

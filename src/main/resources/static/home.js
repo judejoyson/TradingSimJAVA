@@ -1,3 +1,9 @@
+/*
+ * Home-page controller.
+ *
+ * Java owns the list of valid markets and instruments. This script renders
+ * those options and passes the selected IDs to chart.html in the URL.
+ */
 const form = document.querySelector("#simulation-form");
 const marketContainer = document.querySelector("#market-options");
 const timeframeContainer = document.querySelector("#timeframe-options");
@@ -26,6 +32,8 @@ async function loadOptions() {
     }
 }
 
+// Build controls from API data so adding a ReplayCatalog instrument does not
+// require a matching HTML change.
 function renderMarkets() {
     marketContainer.replaceChildren();
     options.markets.forEach(market => {
@@ -92,6 +100,8 @@ function selectMarket(marketId) {
     instrumentSelect.disabled = false;
 }
 
+// URL parameters make a replay link bookmarkable and keep the two pages
+// independent; chart.html validates the same values again on the server.
 form.addEventListener("submit", event => {
     event.preventDefault();
     if (!selectedMarket) {

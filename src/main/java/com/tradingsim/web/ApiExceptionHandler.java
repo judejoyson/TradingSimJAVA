@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
 
+/**
+ * Converts expected application failures into one predictable JSON error shape
+ * so browser code does not need to understand Java exceptions.
+ */
 @RestControllerAdvice
 public final class ApiExceptionHandler {
     @ExceptionHandler(BadRequestException.class)

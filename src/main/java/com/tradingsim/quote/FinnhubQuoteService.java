@@ -14,6 +14,13 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Finnhub-backed implementation of current quotes and company details.
+ *
+ * <p>Short-lived caches reduce external requests and protect free-plan rate
+ * limits. A concurrent map is used because many web requests may arrive at
+ * once. The API key is read server-side and never sent to browser JavaScript.</p>
+ */
 @Service
 public final class FinnhubQuoteService implements QuoteService, StockDetailsService {
     private final RestClient restClient;
@@ -50,6 +57,8 @@ public final class FinnhubQuoteService implements QuoteService, StockDetailsServ
             return cached.quote();
         }
 
+        // Cache only successful responses so provider errors remain visible
+        // instead of looking like valid market data.
         StockQuote quote = fetchQuote(symbol);
         cache.put(symbol, new CachedQuote(quote, now));
         return quote;
