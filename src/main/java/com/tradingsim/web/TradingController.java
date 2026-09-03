@@ -17,6 +17,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Legacy live paper-trading endpoints retained alongside ReplayLab.
+ *
+ * <p>The current two-page historical simulator uses
+ * {@link com.tradingsim.replay.ReplayController}; these endpoints remain useful
+ * if the live portfolio interface is restored later.</p>
+ */
 @RestController
 @RequestMapping("/api")
 public final class TradingController {

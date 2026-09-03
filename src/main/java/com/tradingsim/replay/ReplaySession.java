@@ -11,5 +11,6 @@ public record ReplaySession(
         int timeframeMinutes,
         int pricePrecision,
         int initialBars,
+        ExecutionProfile executionProfile,
         List<ReplayCandle> candles) {
 }

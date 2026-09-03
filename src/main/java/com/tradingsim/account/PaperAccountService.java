@@ -14,6 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Thread-safe in-memory ledger for the earlier live paper-trading interface.
+ *
+ * <p>All mutating and snapshot methods are synchronized because Spring shares
+ * one service instance across concurrent HTTP requests. Restarting the server
+ * clears this state.</p>
+ */
 @Service
 public final class PaperAccountService {
     private static final int MONEY_SCALE = 2;
@@ -58,6 +65,8 @@ public final class PaperAccountService {
         }
 
         BigDecimal executionPrice = currentPrice;
+        // Calculate the precise notional before rounding currency to cents.
+        // Rounding the per-share price first can compound error on large orders.
         BigDecimal total = money(currentPrice.multiply(BigDecimal.valueOf(quantity)));
         if (total.signum() <= 0) {
             throw new BadRequestException("The order total is too small to execute.");
@@ -121,6 +130,7 @@ public final class PaperAccountService {
         BigDecimal existingCost = position.averagePrice
                 .multiply(BigDecimal.valueOf(position.quantity));
         int newQuantity = position.quantity + quantity;
+        // Weighted average cost combines the old position and new purchase.
         position.averagePrice = existingCost
                 .add(total)
                 .divide(BigDecimal.valueOf(newQuantity), 4, RoundingMode.HALF_UP);

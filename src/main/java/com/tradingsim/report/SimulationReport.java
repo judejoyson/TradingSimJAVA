@@ -5,6 +5,9 @@ import com.tradingsim.order.Trade;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Collects immutable-facing trade results from one backtest run.
+ */
 public final class SimulationReport {
     private final List<Trade> trades = new ArrayList<>();
 

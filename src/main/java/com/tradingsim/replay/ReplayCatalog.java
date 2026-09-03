@@ -9,6 +9,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Central registry of every selectable market, instrument, and timeframe.
+ *
+ * <p>Add or tune demo instruments here. Keeping this information on the server
+ * ensures the home page and session validation use identical choices.</p>
+ */
 @Component
 public final class ReplayCatalog {
     private final Map<String, MarketDefinition> markets = new LinkedHashMap<>();
@@ -19,6 +25,7 @@ public final class ReplayCatalog {
                 "STOCKS",
                 "U.S. Stocks",
                 "Large-cap shares and broad-market ETFs",
+                new ExecutionProfile(2.0, 1.0, 1.0, 0.05),
                 new InstrumentDefinition("SPY", "S&P 500 ETF", 2, "540", "0.0014"),
                 new InstrumentDefinition("QQQ", "Nasdaq 100 ETF", 2, "470", "0.0018"),
                 new InstrumentDefinition("AAPL", "Apple", 2, "220", "0.0020"));
@@ -26,6 +33,7 @@ public final class ReplayCatalog {
                 "FOREX",
                 "Forex",
                 "Major currency pairs with five-decimal pricing",
+                new ExecutionProfile(1.0, 0.5, 0.2, 0.10),
                 new InstrumentDefinition("EURUSD", "Euro / U.S. Dollar", 5, "1.08500", "0.00045"),
                 new InstrumentDefinition("GBPUSD", "British Pound / U.S. Dollar", 5, "1.27000", "0.00055"),
                 new InstrumentDefinition("USDJPY", "U.S. Dollar / Japanese Yen", 3, "149.000", "0.00050"));
@@ -33,6 +41,7 @@ public final class ReplayCatalog {
                 "CRYPTO",
                 "Crypto",
                 "High-volatility digital asset markets",
+                new ExecutionProfile(8.0, 3.0, 5.0, 0.10),
                 new InstrumentDefinition("BTCUSD", "Bitcoin / U.S. Dollar", 2, "65000", "0.0055"),
                 new InstrumentDefinition("ETHUSD", "Ethereum / U.S. Dollar", 2, "3500", "0.0070"),
                 new InstrumentDefinition("SOLUSD", "Solana / U.S. Dollar", 2, "145", "0.0090"));
@@ -48,6 +57,24 @@ public final class ReplayCatalog {
                 .map(MarketDefinition::toOption)
                 .toList();
         return new ReplayOptions(marketOptions, List.copyOf(timeframes.values()));
+    }
+
+    /**
+     * Resolves validated instrument metadata for longer historical backtests.
+     */
+    public HistoricalInstrumentSpec historicalSpec(
+            String requestedMarket,
+            String requestedSymbol) {
+        MarketDefinition market = market(requestedMarket);
+        InstrumentDefinition instrument = instrument(market, requestedSymbol);
+        return new HistoricalInstrumentSpec(
+                market.id(),
+                market.label(),
+                instrument.symbol(),
+                instrument.name(),
+                instrument.pricePrecision(),
+                instrument.startingPriceValue(),
+                instrument.volatilityValue());
     }
 
     MarketDefinition market(String requestedMarket) {
@@ -83,8 +110,11 @@ public final class ReplayCatalog {
             String id,
             String label,
             String description,
+            ExecutionProfile executionProfile,
             InstrumentDefinition... instruments) {
-        markets.put(id, new MarketDefinition(id, label, description, List.of(instruments)));
+        markets.put(
+                id,
+                new MarketDefinition(id, label, description, executionProfile, List.of(instruments)));
     }
 
     private void registerTimeframe(String id, String label, int minutes) {
@@ -102,6 +132,7 @@ public final class ReplayCatalog {
             String id,
             String label,
             String description,
+            ExecutionProfile executionProfile,
             List<InstrumentDefinition> instruments) {
 
         private MarketOption toOption() {

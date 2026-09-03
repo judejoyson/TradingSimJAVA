@@ -1,3 +1,4 @@
+/* Design tokens: change these values to retheme both application pages. */
 :root {
     --ink: #101820;
     --muted: #68737d;
@@ -19,6 +20,7 @@
     box-sizing: border-box;
 }
 
+/* Shared page shell and brand elements */
 html {
     min-width: 320px;
 }
@@ -95,6 +97,29 @@ button:disabled {
     text-transform: uppercase;
 }
 
+.home-nav {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.home-nav a {
+    color: var(--ink);
+    font-size: 0.82rem;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.home-nav a:hover {
+    color: var(--green);
+}
+
+.home-nav .training-badge {
+    margin-left: 0;
+}
+
+/* Home page hero and simulation setup */
 .home-hero {
     width: min(1280px, calc(100% - 48px));
     min-height: calc(100vh - 160px);
@@ -390,6 +415,7 @@ select:focus,
     text-align: center;
 }
 
+/* Home page onboarding strip */
 .how-it-works {
     padding: 80px max(24px, calc((100% - 1280px) / 2));
     color: #fff;
@@ -451,7 +477,7 @@ select:focus,
     font-size: 0.72rem;
 }
 
-/* Trading workspace */
+/* Trading workspace shell and replay controls */
 
 .chart-page {
     overflow: hidden;
@@ -686,6 +712,7 @@ select:focus,
     background: var(--green-bright);
 }
 
+/* Order ticket, position state, and execution assumptions */
 .trade-sidebar {
     overflow-y: auto;
     background: #10161d;
@@ -732,6 +759,30 @@ select:focus,
 
 .field-label {
     color: #75818c;
+}
+
+.dark-select {
+    width: 100%;
+    margin-bottom: 18px;
+    padding: 11px 12px;
+    color: #dbe0e4;
+    background: #0d1319;
+    border: 1px solid #2c3742;
+    border-radius: 7px;
+    outline: none;
+}
+
+.dark-select:focus {
+    border-color: #397b5e;
+}
+
+.dark-select:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.expiration-label {
+    margin-top: 18px;
 }
 
 .quantity-field {
@@ -831,6 +882,7 @@ select:focus,
 
 .status-ready,
 .status-open,
+.status-partial,
 .status-target {
     color: #82ddb4;
     background: #153425;
@@ -841,9 +893,20 @@ select:focus,
     background: #182d45;
 }
 
-.status-stop {
+.status-pending,
+.status-triggered {
+    color: #8fc5ff;
+    background: #182d45;
+}
+
+.status-stop,
+.status-expired {
     color: #ff9b9b;
     background: #3b2023;
+}
+
+.compact-metrics > div {
+    padding: 8px 0;
 }
 
 .pnl-display {
@@ -896,6 +959,294 @@ select:focus,
     margin: 0;
 }
 
+/* Historical backtest form and analytics */
+.backtest-shell {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 70px 0 90px;
+}
+
+.backtest-intro {
+    max-width: 790px;
+    margin-bottom: 42px;
+}
+
+.backtest-intro h1 {
+    margin-bottom: 22px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(3rem, 6vw, 5.6rem);
+    font-weight: 500;
+    line-height: 0.95;
+    letter-spacing: -0.055em;
+}
+
+.backtest-intro h1 em {
+    color: var(--green);
+    font-weight: inherit;
+}
+
+.backtest-intro > p:last-child {
+    max-width: 690px;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.backtest-card,
+.analytics-panel {
+    padding: clamp(24px, 4vw, 40px);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+}
+
+.backtest-form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.backtest-card label {
+    display: grid;
+    gap: 8px;
+    color: #4e5a54;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.backtest-card select,
+.backtest-card input {
+    width: 100%;
+    padding: 12px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    outline: none;
+}
+
+.backtest-card select:focus,
+.backtest-card input:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(29, 122, 85, 0.1);
+}
+
+.strategy-settings {
+    margin-top: 20px;
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    background: var(--green-soft);
+    border-radius: 10px;
+}
+
+.strategy-settings[hidden] {
+    display: none;
+}
+
+.strategy-settings label {
+    width: min(200px, 100%);
+}
+
+.strategy-description {
+    margin: 20px 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.csv-upload-panel {
+    margin-top: 20px;
+    padding: 22px;
+    background: #f7f4ec;
+    border: 1px dashed #aeb8b1;
+    border-radius: 10px;
+}
+
+.csv-upload-panel[hidden] {
+    display: none;
+}
+
+.csv-upload-panel > label {
+    margin-bottom: 10px;
+}
+
+.csv-upload-panel input[type="file"] {
+    padding: 10px;
+    background: #fff;
+}
+
+.csv-upload-panel p {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 0.8rem;
+    line-height: 1.6;
+}
+
+.csv-upload-panel code {
+    color: #355247;
+    font-size: 0.76rem;
+}
+
+.csv-upload-panel a {
+    color: var(--green);
+    font-weight: 750;
+}
+
+.backtest-results {
+    width: min(1040px, 100%);
+    margin: 70px auto 0;
+}
+
+.backtest-results[hidden] {
+    display: none;
+}
+
+.result-heading {
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.result-heading h2 {
+    margin-bottom: 8px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 2.5rem;
+    font-weight: 500;
+}
+
+.result-heading p:last-child {
+    color: var(--muted);
+}
+
+.metric-cards {
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.metric-card {
+    padding: 22px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.metric-card span,
+.metric-card strong {
+    display: block;
+}
+
+.metric-card span {
+    margin-bottom: 9px;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.metric-card strong {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.7rem;
+    font-weight: 500;
+}
+
+.positive {
+    color: var(--green) !important;
+}
+
+.negative {
+    color: var(--red) !important;
+}
+
+.analytics-panel {
+    margin-top: 24px;
+    overflow: hidden;
+}
+
+.panel-heading {
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.panel-heading h3 {
+    margin: 0 0 6px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.panel-heading p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+
+.chart-key {
+    display: flex;
+    gap: 18px;
+    color: var(--muted);
+    font-size: 0.75rem;
+}
+
+.chart-key i {
+    width: 18px;
+    height: 3px;
+    margin-right: 6px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.strategy-line {
+    background: var(--green);
+}
+
+.benchmark-line {
+    background: var(--gold);
+}
+
+#equity-chart {
+    width: 100%;
+    display: block;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+.table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.table-wrap th,
+.table-wrap td {
+    padding: 13px 12px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.table-wrap th {
+    color: var(--muted);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.empty-table {
+    padding: 30px !important;
+    color: var(--muted);
+    text-align: center !important;
+}
+
+/* Temporary feedback and final result dialog */
 .toast {
     position: fixed;
     left: 50%;
@@ -1027,6 +1378,7 @@ select:focus,
     border-color: var(--line);
 }
 
+/* Responsive layouts: desktop first, then tablet and phone overrides */
 @media (max-width: 960px) {
     .home-hero {
         grid-template-columns: 1fr;
@@ -1069,12 +1421,25 @@ select:focus,
         grid-template-columns: 1fr 1fr;
         overflow: visible;
     }
+
+    .backtest-form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 680px) {
     .home-topbar,
-    .home-hero {
+    .home-hero,
+    .backtest-shell {
         width: min(100% - 28px, 1280px);
+    }
+
+    .home-nav {
+        gap: 10px;
+    }
+
+    .home-nav .training-badge {
+        display: none;
     }
 
     .home-hero {
@@ -1092,6 +1457,29 @@ select:focus,
 
     .process-list li > span {
         margin-bottom: 15px;
+    }
+
+    .backtest-shell {
+        padding: 48px 0 60px;
+    }
+
+    .backtest-form-grid,
+    .metric-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .strategy-settings,
+    .panel-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .strategy-settings label {
+        width: 100%;
+    }
+
+    .analytics-panel {
+        padding: 20px 14px;
     }
 
     .chart-topbar {
@@ -1129,6 +1517,7 @@ select:focus,
     .speed-control {
         display: none;
     }
+
 
     .chart-footer {
         grid-template-columns: 1fr 1fr;

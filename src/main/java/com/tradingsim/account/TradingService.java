@@ -10,6 +10,12 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Coordinates live quotes with the in-memory paper account.
+ *
+ * <p>Keeping quote lookup here prevents {@link PaperAccountService} from
+ * depending on an external data provider.</p>
+ */
 @Service
 public final class TradingService {
     private static final int MONEY_SCALE = 2;
@@ -33,6 +39,10 @@ public final class TradingService {
         return new OrderResult(result.trade(), account());
     }
 
+    /**
+     * Values every open position at its latest quote and calculates account
+     * equity without mutating the underlying accounting records.
+     */
     public AccountView account() {
         AccountView account = accountService.snapshot();
         List<PositionView> valuedPositions = new ArrayList<>();
@@ -44,6 +54,8 @@ public final class TradingService {
             BigDecimal marketValue = money(quote.currentPrice()
                     .multiply(BigDecimal.valueOf(position.quantity())));
             BigDecimal positionProfitLoss = money(marketValue.subtract(position.costBasis()));
+            // Percentage return is measured against the money originally
+            // invested in this position, not total account cash.
             BigDecimal positionProfitLossPercent = position.costBasis().signum() == 0
                     ? BigDecimal.ZERO.setScale(MONEY_SCALE)
                     : positionProfitLoss

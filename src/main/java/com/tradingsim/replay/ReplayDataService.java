@@ -12,6 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Builds repeatable replay sessions from catalog selections.
+ *
+ * <p>The generator is intentionally deterministic: the same market, symbol,
+ * and timeframe produce the same seed and therefore the same candles.</p>
+ */
 @Service
 public final class ReplayDataService {
     static final int CANDLE_COUNT = 360;
@@ -29,6 +35,10 @@ public final class ReplayDataService {
         return catalog.options();
     }
 
+    /**
+     * Validates browser selections and returns all metadata and candles needed
+     * for a self-contained replay tab.
+     */
     public ReplaySession createSession(
             String requestedMarket,
             String requestedSymbol,
@@ -46,6 +56,7 @@ public final class ReplayDataService {
                 timeframe.minutes(),
                 instrument.pricePrecision(),
                 INITIAL_BARS,
+                market.executionProfile(),
                 generateCandles(market, instrument, timeframe));
     }
 
@@ -61,6 +72,8 @@ public final class ReplayDataService {
 
         for (int index = 0; index < CANDLE_COUNT; index++) {
             double open = previousClose.doubleValue();
+            // Combine a smooth cycle, three broad trend regimes, and seeded
+            // random noise so sessions contain both trends and reversals.
             double cyclicalMove = Math.sin((index + Math.abs(seed % 31)) / 19.0)
                     * instrument.volatilityValue() * 0.28;
             double regime = index < 120 ? 0.00010 : index < 240 ? -0.00006 : 0.00014;
@@ -69,6 +82,8 @@ public final class ReplayDataService {
             double close = Math.max(open * (1.0 + returnRate), minimumPrice(instrument));
             double wickSize = Math.abs(random.nextGaussian())
                     * instrument.volatilityValue() * open * 0.7;
+            // High and low are derived from the candle body, guaranteeing valid
+            // OHLC relationships even after generated returns are negative.
             double high = Math.max(open, close) + wickSize;
             double low = Math.max(
                     Math.min(open, close) - wickSize * (0.75 + random.nextDouble() * 0.5),

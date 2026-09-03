@@ -6,6 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
+/**
+ * Matches incoming orders against the best resting price using price-time
+ * priority and supports fills smaller than either original order.
+ */
 public final class MatchingEngine {
     private final OrderBookManager orderBooks;
 
@@ -13,6 +17,10 @@ public final class MatchingEngine {
         this.orderBooks = orderBooks;
     }
 
+    /**
+     * Returns all executions created by one incoming order. Any unfilled limit
+     * quantity rests in the book; unfilled market quantity is discarded.
+     */
     public List<Trade> submit(Order incoming) {
         OrderBook book = orderBooks.bookFor(incoming.symbol());
         PriorityQueue<BookOrder> opposite = incoming.side() == Side.BUY ? book.asks() : book.bids();
@@ -21,6 +29,7 @@ public final class MatchingEngine {
 
         while (remaining > 0 && !opposite.isEmpty() && crosses(incoming, opposite.peek().order())) {
             BookOrder resting = opposite.peek();
+            // The trade cannot exceed either side's currently available size.
             long fillQuantity = Math.min(remaining, resting.remainingQuantity());
             trades.add(toTrade(incoming, resting.order(), fillQuantity));
             remaining -= fillQuantity;
@@ -56,6 +65,7 @@ public final class MatchingEngine {
                 sell.accountId(),
                 incoming.symbol(),
                 quantity,
+                // The older resting order supplies the execution price.
                 resting.limitPrice(),
                 incoming.submittedAt());
     }

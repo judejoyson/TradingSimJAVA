@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Test trading strategies over deterministic historical data.">
+    <title>Historical Backtester | ReplayLab</title>
+    <link rel="stylesheet" href="/simulator.css">
+    <script src="/backtest.js" defer></script>
+</head>
+<body class="backtest-page">
+<header class="topbar home-topbar">
+    <a class="brand" href="/">
+        <span class="brand-icon" aria-hidden="true">R</span>
+        <span>ReplayLab</span>
+    </a>
+    <nav class="home-nav" aria-label="Main navigation">
+        <a href="/">Manual replay</a>
+        <span class="training-badge">Historical lab</span>
+    </nav>
+</header>
+
+<main class="backtest-shell">
+    <section class="backtest-intro">
+        <p class="eyebrow">Automated strategy testing</p>
+        <h1>Test the rules,<br><em>then study the result.</em></h1>
+        <p>
+            Choose a market, strategy, and date range. ReplayLab executes every
+            signal on the next day's open, preventing future information from
+            leaking into the result.
+        </p>
+    </section>
+
+    <section class="backtest-card">
+        <form id="backtest-form">
+            <div class="backtest-form-grid">
+                <label>Data source
+                    <select id="data-source">
+                        <option value="GENERATED">ReplayLab generated data</option>
+                        <option value="CSV">Upload my CSV file</option>
+                    </select>
+                </label>
+                <label>Market
+                    <select id="backtest-market" required disabled></select>
+                </label>
+                <label id="generated-symbol-field">Instrument
+                    <select id="backtest-symbol" required disabled></select>
+                </label>
+                <label id="custom-symbol-field" hidden>Symbol name
+                    <input id="custom-symbol" type="text" maxlength="20"
+                           placeholder="Example: MSFT" value="CUSTOM">
+                </label>
+                <label>Strategy
+                    <select id="backtest-strategy" required disabled></select>
+                </label>
+                <label>Starting cash
+                    <input id="starting-cash" type="number" min="100" step="100" value="10000" required>
+                </label>
+                <label>Start date
+                    <input id="start-date" type="date" value="2023-01-01" required>
+                </label>
+                <label>End date
+                    <input id="end-date" type="date" value="2025-01-01" required>
+                </label>
+                <label>Fee (basis points)
+                    <input id="fee-rate" type="number" min="0" max="1000" step="0.1" value="1">
+                </label>
+            </div>
+
+            <section id="csv-upload-panel" class="csv-upload-panel" hidden>
+                <label for="csv-file">Historical candle CSV</label>
+                <input id="csv-file" type="file" accept=".csv,text/csv">
+                <p>
+                    Required header: <code>date,open,high,low,close,volume</code>.
+                    Use one daily candle per row, oldest first. Dates may use
+                    <code>YYYY-MM-DD</code> or <code>MM/DD/YYYY</code>.
+                    <a href="/sample-backtest-data.csv" download>Download an example</a>.
+                </p>
+            </section>
+
+            <div id="moving-average-settings" class="strategy-settings">
+                <label>Fast average
+                    <input id="fast-period" type="number" min="2" max="200" value="20">
+                </label>
+                <label>Slow average
+                    <input id="slow-period" type="number" min="3" max="400" value="50">
+                </label>
+            </div>
+
+            <div id="rsi-settings" class="strategy-settings" hidden>
+                <label>RSI period
+                    <input id="rsi-period" type="number" min="2" max="100" value="14">
+                </label>
+                <label>Oversold
+                    <input id="oversold" type="number" min="1" max="49" value="30">
+                </label>
+                <label>Overbought
+                    <input id="overbought" type="number" min="51" max="99" value="70">
+                </label>
+            </div>
+
+            <p id="strategy-description" class="strategy-description"></p>
+            <div id="backtest-error" class="inline-alert" role="alert" hidden></div>
+            <button id="run-backtest" class="primary-button" type="submit" disabled>
+                Run historical backtest
+            </button>
+        </form>
+    </section>
+
+    <section id="backtest-results" class="backtest-results" hidden aria-live="polite">
+        <div class="result-heading">
+            <div>
+                <p class="eyebrow">Backtest result</p>
+                <h2 id="result-title"></h2>
+                <p id="result-period"></p>
+            </div>
+        </div>
+
+        <div id="metric-cards" class="metric-cards"></div>
+
+        <section class="analytics-panel">
+            <div class="panel-heading">
+                <div>
+                    <h3>Portfolio equity</h3>
+                    <p>Strategy value compared with buying and holding the instrument.</p>
+                </div>
+                <div class="chart-key">
+                    <span><i class="strategy-line"></i>Strategy</span>
+                    <span><i class="benchmark-line"></i>Benchmark</span>
+                </div>
+            </div>
+            <canvas id="equity-chart" height="340" aria-label="Equity curve chart"></canvas>
+        </section>
+
+        <section class="analytics-panel">
+            <div class="panel-heading">
+                <div>
+                    <h3>Execution history</h3>
+                    <p>Every buy and sell generated by the selected rules.</p>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Side</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Fee</th>
+                        <th>Reason</th>
+                    </tr>
+                    </thead>
+                    <tbody id="execution-rows"></tbody>
+                </table>
+            </div>
+        </section>
+    </section>
+</main>
+
+<footer class="home-footer">
+    Generated historical data is for software education, not investment advice.
+</footer>
+</body>
+</html>

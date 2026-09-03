@@ -7,6 +7,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Applies completed trades to account cash and per-symbol positions.
+ *
+ * <p>Positive quantities are long and negative quantities are short. This
+ * class records settled trade effects; it does not perform risk checks.</p>
+ */
 public final class PortfolioManager {
     private final Map<String, Account> accounts = new LinkedHashMap<>();
 
@@ -17,6 +23,8 @@ public final class PortfolioManager {
     }
 
     public void apply(Trade trade) {
+        // One notional amount leaves the buyer and enters the seller, keeping
+        // cash movement balanced across the two simulated accounts.
         BigDecimal notional = trade.price().multiply(BigDecimal.valueOf(trade.quantity()));
         Account buyer = account(trade.buyerAccountId());
         Account seller = account(trade.sellerAccountId());
