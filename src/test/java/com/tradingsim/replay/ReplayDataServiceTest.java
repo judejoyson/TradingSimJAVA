@@ -35,6 +35,24 @@ class ReplayDataServiceTest {
     }
 
     @Test
+    void createsAUniqueRandomPathForEveryCompetitiveSession() {
+        ReplaySession first = service.createRandomSession("AAPL", "5m");
+        ReplaySession second = service.createRandomSession("AAPL", "5m");
+
+        assertEquals(ReplayDataService.CANDLE_COUNT, first.candles().size());
+        assertEquals(ReplayDataService.CANDLE_COUNT, second.candles().size());
+        assertTrue(!first.candles().equals(second.candles()));
+    }
+
+    @Test
+    void reconstructsACompetitivePathFromItsStoredSeed() {
+        SeededReplaySession first = service.createSeededRandomSession("AAPL", "5m");
+        ReplaySession restored = service.createRandomSession("AAPL", "5m", first.seed());
+
+        assertEquals(first.replay(), restored);
+    }
+
+    @Test
     void exposesAllMarketsAndTimeframes() {
         ReplayOptions options = service.options();
 

@@ -10,11 +10,26 @@ const timeframeContainer = document.querySelector("#timeframe-options");
 const instrumentSelect = document.querySelector("#instrument");
 const startButton = document.querySelector("#start-button");
 const errorBox = document.querySelector("#home-error");
+const competitiveLink = document.querySelector("#competitive-link");
+const signInLink = document.querySelector("#sign-in-link");
+const signedInUser = document.querySelector("#signed-in-user");
 
 let options;
 let selectedMarket;
 
 loadOptions();
+configureCompetitiveLink();
+
+async function configureCompetitiveLink() {
+    const response = await fetch("/api/auth/me");
+    if (response.ok) {
+        const user = await response.json();
+        competitiveLink.href = "/account.html";
+        signInLink.hidden = true;
+        signedInUser.textContent = user.displayName;
+        signedInUser.hidden = false;
+    }
+}
 
 async function loadOptions() {
     try {

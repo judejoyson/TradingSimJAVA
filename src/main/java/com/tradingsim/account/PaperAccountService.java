@@ -102,12 +102,17 @@ public final class PaperAccountService {
                 .map(PositionView::costBasis)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         return new AccountView(
+                AccountMode.NORMAL,
                 startingCash,
                 cash,
                 money(positionsCost),
                 money(cash.add(positionsCost)),
                 money(BigDecimal.ZERO),
                 realizedProfitLoss,
+                money(BigDecimal.ZERO),
+                null,
+                false,
+                money(BigDecimal.ZERO),
                 positionViews,
                 List.copyOf(trades));
     }

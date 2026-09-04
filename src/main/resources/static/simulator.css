@@ -115,6 +115,13 @@ button:disabled {
     color: var(--green);
 }
 
+.sidebar-plan-help {
+    margin: 14px 0 0;
+    color: #8b98a5;
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
 .home-nav .training-badge {
     margin-left: 0;
 }
@@ -477,6 +484,325 @@ select:focus,
     font-size: 0.72rem;
 }
 
+.home-footer span {
+    display: block;
+}
+
+.home-footer span + span {
+    margin-top: 5px;
+}
+
+/* Authentication pages */
+.auth-page {
+    padding: 48px 20px;
+    display: grid;
+    place-items: center;
+    background:
+        radial-gradient(circle at 20% 15%, rgba(29, 122, 85, 0.16), transparent 35%),
+        var(--paper);
+}
+
+.auth-card {
+    width: min(460px, 100%);
+    padding: 38px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+}
+
+.auth-card .brand {
+    margin-bottom: 36px;
+}
+
+.auth-card h1,
+.workspace-heading h1 {
+    margin-bottom: 12px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 2.7rem;
+    font-weight: 500;
+}
+
+.auth-copy,
+.auth-switch {
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.auth-card form,
+.journal-form {
+    display: grid;
+    gap: 18px;
+}
+
+.auth-card label,
+.journal-form label {
+    display: grid;
+    gap: 8px;
+    color: #4e5a54;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.auth-card input,
+.journal-form input,
+.journal-form textarea {
+    padding: 12px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font: inherit;
+}
+
+.auth-card small {
+    margin-top: -10px;
+    color: var(--muted);
+}
+
+.auth-switch {
+    margin: 24px 0 0;
+    text-align: center;
+}
+
+.auth-switch a {
+    color: var(--green);
+    font-weight: 750;
+}
+
+/* Authenticated portfolio, history, and journal workspace */
+.workspace-shell {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 65px 0 90px;
+}
+
+.workspace-heading {
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.workspace-heading p:last-child {
+    color: var(--muted);
+}
+
+.workspace-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.mode-panel,
+.deposit-banner {
+    margin-bottom: 18px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    color: #dfe9e4;
+    background: #13261e;
+    border: 1px solid #27533e;
+    border-radius: 12px;
+}
+
+.mode-panel {
+    color: var(--ink);
+    background: var(--surface);
+    border-color: var(--line);
+}
+
+.mode-panel h2 {
+    margin: 4px 0 6px;
+    font-size: 1.15rem;
+}
+
+.mode-panel p:last-child {
+    color: var(--muted);
+}
+
+.mode-form {
+    display: flex;
+    align-items: end;
+    gap: 10px;
+}
+
+.mode-form label {
+    display: grid;
+    gap: 5px;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.mode-form select {
+    min-width: 150px;
+}
+
+.deposit-banner p {
+    margin-bottom: 6px;
+    color: #82ddb4;
+}
+
+.deposit-countdown {
+    text-align: right;
+}
+
+.deposit-countdown span,
+.deposit-countdown strong {
+    display: block;
+}
+
+.deposit-countdown span {
+    margin-bottom: 4px;
+    color: #91a098;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+.deposit-countdown strong {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 1.35rem;
+}
+
+.deposit-countdown .primary-button {
+    margin-top: 10px;
+    padding: 9px 14px;
+}
+
+.workspace-grid .analytics-panel {
+    margin-top: 0;
+}
+
+.leaderboard-panel {
+    margin: 24px 0;
+}
+
+.leaderboard-sort {
+    display: grid;
+    gap: 5px;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.competitive-shell {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 56px 0 90px;
+}
+
+.competitive-toolbar,
+.competitive-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.competitive-toolbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    margin-bottom: 24px;
+    padding: 20px 24px;
+    color: #dfe9e4;
+    background: #13261e;
+    border: 1px solid #27533e;
+    border-radius: 12px;
+}
+
+.competitive-grid {
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 24px;
+}
+
+.quote-form,
+.order-form {
+    display: flex;
+    align-items: end;
+    gap: 12px;
+}
+
+.quote-form label,
+.order-form label {
+    display: grid;
+    flex: 1;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 750;
+}
+
+.quote-form input,
+.order-form input,
+.order-form select {
+    min-width: 0;
+}
+
+.quote-price {
+    display: block;
+    margin: 10px 0 18px;
+    color: var(--green);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+.quote-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.competitive-full-button {
+    width: 100%;
+    margin-top: 16px;
+}
+
+.competitive-deposit {
+    text-align: left;
+}
+
+.competitive-error {
+    margin: 14px;
+}
+
+.history-list {
+    display: grid;
+    gap: 10px;
+}
+
+.history-item {
+    padding: 16px;
+    background: #f5f3ec;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+}
+
+.history-item p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.journal-form {
+    margin-bottom: 24px;
+}
+
+.journal-form textarea {
+    resize: vertical;
+}
+
+.journal-item small {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+}
+
+.empty-state {
+    padding: 24px;
+    color: var(--muted);
+    background: #f5f3ec;
+    border-radius: 9px;
+    text-align: center;
+}
+
 /* Trading workspace shell and replay controls */
 
 .chart-page {
@@ -755,6 +1081,10 @@ select:focus,
 .direction-control input:disabled + span {
     cursor: not-allowed;
     opacity: 0.55;
+}
+
+[hidden] {
+    display: none !important;
 }
 
 .field-label {
@@ -1424,6 +1754,31 @@ select:focus,
 
     .backtest-form-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .workspace-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .competitive-toolbar,
+    .competitive-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mode-panel,
+    .deposit-banner {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .mode-form {
+        align-items: stretch;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .deposit-countdown {
+        text-align: left;
     }
 }
 

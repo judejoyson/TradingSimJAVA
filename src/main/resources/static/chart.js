@@ -333,6 +333,11 @@ function toggleReplay() {
         showToast("Set the entry, stop-loss, and take-profit before playing.");
         return;
     }
+    const setupError = window.TradePlanValidation.error(direction(), plan);
+    if (setupError) {
+        showToast(setupError);
+        return;
+    }
     if (!requestedQuantity()) {
         showToast("Enter a whole-number position size greater than zero.");
         return;
