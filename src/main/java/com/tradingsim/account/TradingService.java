@@ -77,12 +77,17 @@ public final class TradingService {
         }
 
         return new AccountView(
+                account.mode(),
                 account.startingCash(),
                 account.cash(),
                 money(positionsMarketValue),
                 money(account.cash().add(positionsMarketValue)),
                 money(unrealizedProfitLoss),
                 account.realizedProfitLoss(),
+                account.depositAmount(),
+                account.nextDepositAt(),
+                account.depositAvailable(),
+                account.totalDeposits(),
                 List.copyOf(valuedPositions),
                 account.recentTrades());
     }

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My workspace | ReplayLab</title>
+    <link rel="stylesheet" href="/simulator.css">
+    <script src="/account.js" defer></script>
+</head>
+<body class="backtest-page">
+<header class="topbar home-topbar">
+    <a class="brand" href="/">
+        <span class="brand-icon" aria-hidden="true">R</span>
+        <span>ReplayLab</span>
+    </a>
+    <nav class="home-nav" aria-label="Main navigation">
+        <a href="/account.html">My workspace</a>
+        <a href="/backtest.html">Strategy backtester</a>
+        <a href="/">Manual replay</a>
+        <button id="logout-button" class="text-button" type="button">Sign out</button>
+    </nav>
+</header>
+
+<main class="workspace-shell">
+    <section class="workspace-heading">
+        <p class="eyebrow">Private workspace</p>
+        <h1 id="welcome-name">Your ReplayLab account</h1>
+        <p id="account-email"></p>
+    </section>
+
+    <div id="workspace-error" class="inline-alert" role="alert" hidden></div>
+    <section class="mode-panel" aria-labelledby="mode-heading">
+        <div>
+            <p class="eyebrow">Trading mode</p>
+            <h2 id="mode-heading">Choose your account rules</h2>
+            <p id="mode-description">Normal mode starts with $100,000 and has no scheduled deposits.</p>
+        </div>
+        <form id="mode-form" class="mode-form">
+            <label for="account-mode">Current mode
+                <select id="account-mode">
+                    <option value="NORMAL">Normal</option>
+                    <option value="COMPETITIVE">Competitive</option>
+                </select>
+            </label>
+            <button class="primary-button" type="submit">Change mode</button>
+            <a id="competitive-trade-link" class="primary-button" href="/competitive.html" hidden>
+                Open day trading
+            </a>
+        </form>
+    </section>
+    <section id="deposit-banner" class="deposit-banner" aria-live="polite" hidden>
+        <div>
+            <p class="eyebrow">Scheduled allowance</p>
+            <strong>Claim <span id="deposit-amount">$75,000</span> every 1 hour 30 minutes</strong>
+        </div>
+        <div class="deposit-countdown">
+            <span>Next deposit</span>
+            <strong id="deposit-countdown">--:--:--</strong>
+            <button id="claim-deposit-button" class="primary-button" type="button" disabled>
+                Claim deposit
+            </button>
+        </div>
+    </section>
+    <section id="portfolio-summary" class="metric-cards" aria-label="Portfolio summary"></section>
+
+    <section class="analytics-panel leaderboard-panel">
+        <div class="panel-heading">
+            <div>
+                <p class="eyebrow">Competitive only</p>
+                <h3>Leaderboard</h3>
+                <p>Compare realized performance without counting allowance deposits as profit.</p>
+            </div>
+            <label class="leaderboard-sort">Rank by
+                <select id="leaderboard-sort">
+                    <option value="RETURN">Return</option>
+                    <option value="SHARPE">Sharpe ratio</option>
+                    <option value="CONSISTENCY">Consistency</option>
+                </select>
+            </label>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Player</th>
+                    <th>Return</th>
+                    <th>Sharpe</th>
+                    <th>Consistency</th>
+                    <th>Closed trades</th>
+                </tr>
+                </thead>
+                <tbody id="leaderboard-rows"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="workspace-grid">
+        <section class="analytics-panel">
+            <div class="panel-heading">
+                <div>
+                    <h3>Saved backtests</h3>
+                    <p>The latest 50 strategy runs are saved automatically.</p>
+                </div>
+            </div>
+            <div id="backtest-history" class="history-list"></div>
+        </section>
+
+        <section class="analytics-panel">
+            <div class="panel-heading">
+                <div>
+                    <h3>Trading journal</h3>
+                    <p>Record what you expected, observed, and learned.</p>
+                </div>
+            </div>
+            <form id="journal-form" class="journal-form">
+                <label>Title
+                    <input id="journal-title" maxlength="120" required>
+                </label>
+                <label>Notes
+                    <textarea id="journal-notes" maxlength="5000" rows="5" required></textarea>
+                </label>
+                <button class="primary-button" type="submit">Save journal entry</button>
+            </form>
+            <div id="journal-entries" class="history-list"></div>
+        </section>
+    </div>
+</main>
+</body>
+</html>

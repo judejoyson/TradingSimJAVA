@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Competitive replay | ReplayLab</title>
+    <link rel="stylesheet" href="/simulator.css">
+    <script src="https://unpkg.com/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js" defer></script>
+    <script src="/trade-plan-validation.js" defer></script>
+    <script src="/competitive.js" defer></script>
+</head>
+<body class="chart-page">
+<header class="topbar chart-topbar">
+    <a class="brand" href="/">
+        <span class="brand-icon" aria-hidden="true">R</span>
+        <span>ReplayLab</span>
+    </a>
+    <div class="instrument-identity">
+        <strong id="competitive-symbol">AAPL</strong>
+        <span id="competitive-name">Random Competitive simulation</span>
+    </div>
+    <div class="header-actions">
+        <span class="market-pill">Competitive</span>
+        <a class="secondary-button" href="/account.html">My workspace</a>
+        <a class="secondary-button" href="/backtest.html">Strategy backtester</a>
+    </div>
+</header>
+
+<main class="trading-workspace">
+    <section class="chart-stage">
+        <div class="chart-toolbar">
+            <div class="price-cluster">
+                <span id="competitive-price" class="current-price">--</span>
+                <span id="competitive-change" class="price-change">Generate a session</span>
+            </div>
+            <div class="replay-controls">
+                <button id="new-session-button" class="icon-button" type="button" title="Generate new random session">↺</button>
+                <button id="competitive-play" class="play-button" type="button" disabled>
+                    <span id="competitive-play-icon" aria-hidden="true">▶</span>
+                    <span id="competitive-play-label">Play</span>
+                </button>
+                <label class="speed-control" for="competitive-speed">
+                    <span>Speed</span>
+                    <input id="competitive-speed" type="range" min="0" max="2" value="0" step="1">
+                    <strong id="competitive-speed-label">1×</strong>
+                </label>
+            </div>
+        </div>
+
+        <div id="competitive-message" class="chart-message">
+            <span>!</span>
+            <p>Every new Competitive session generates a different, unpredictable candle path.</p>
+        </div>
+
+        <div id="competitive-chart" class="chart-container">
+            <div id="competitive-loading" class="chart-loading">Generating random market data…</div>
+        </div>
+
+        <div class="chart-footer">
+            <span id="competitive-progress">0 / 0 candles</span>
+            <span>Orders fill at the current generated close</span>
+            <span id="competitive-time">--</span>
+        </div>
+    </section>
+
+    <aside class="trade-sidebar">
+        <section class="sidebar-section plan-section">
+            <p class="eyebrow">Random session</p>
+            <label class="field-label" for="competitive-instrument">Instrument</label>
+            <select id="competitive-instrument" class="dark-select">
+                <option value="AAPL">AAPL · Apple</option>
+                <option value="SPY">SPY · S&amp;P 500 ETF</option>
+                <option value="QQQ">QQQ · Nasdaq 100 ETF</option>
+            </select>
+            <label class="field-label expiration-label" for="competitive-timeframe">Timeframe</label>
+            <select id="competitive-timeframe" class="dark-select">
+                <option value="1m">1 minute</option>
+                <option value="5m" selected>5 minutes</option>
+                <option value="15m">15 minutes</option>
+                <option value="1h">1 hour</option>
+            </select>
+            <button id="generate-session-button" class="primary-button competitive-full-button" type="button">
+                Generate new simulation
+            </button>
+        </section>
+
+        <section class="sidebar-section levels-section">
+            <div class="section-title-row">
+                <p class="eyebrow">Trade plan</p>
+                <button id="competitive-clear-levels" class="text-button" type="button">Clear</button>
+            </div>
+            <label class="field-label expiration-label" for="competitive-quantity">Position size</label>
+            <div class="quantity-field">
+                <input id="competitive-quantity" type="number" min="1" max="100000" value="10">
+                <span>shares</span>
+            </div>
+            <dl class="level-list">
+                <div><dt><i class="legend-entry"></i>Entry</dt><dd id="competitive-entry">Not set</dd></div>
+                <div><dt><i class="legend-stop"></i>Stop-loss</dt><dd id="competitive-stop">Not set</dd></div>
+                <div><dt><i class="legend-target"></i>Take-profit</dt><dd id="competitive-target">Not set</dd></div>
+            </dl>
+            <div class="risk-row">
+                <span>Risk / reward</span>
+                <strong id="competitive-risk-reward">--</strong>
+            </div>
+            <p class="sidebar-plan-help">
+                Double-click once for entry, then below entry for the stop and above entry for the target.
+            </p>
+        </section>
+
+        <section class="sidebar-section live-trade-section">
+            <div class="section-title-row">
+                <p class="eyebrow">Competitive account</p>
+                <span id="competitive-mode-status" class="status-badge status-planning">Loading</span>
+            </div>
+            <div class="pnl-display">
+                <span>Total equity</span>
+                <strong id="competitive-equity">$0.00</strong>
+                <small id="competitive-pnl">Realized P&amp;L $0.00</small>
+            </div>
+            <dl class="trade-metrics">
+                <div><dt>Cash</dt><dd id="competitive-cash">$0.00</dd></div>
+                <div><dt>Position</dt><dd id="competitive-position">0 shares</dd></div>
+                <div><dt>Average cost</dt><dd id="competitive-average">--</dd></div>
+                <div><dt>Unrealized P&amp;L</dt><dd id="competitive-unrealized">$0.00</dd></div>
+            </dl>
+        </section>
+
+        <section class="sidebar-section execution-section">
+            <p class="eyebrow">Scheduled allowance</p>
+            <div class="deposit-countdown competitive-deposit">
+                <span>Next $75,000 claim</span>
+                <strong id="competitive-deposit-time">--:--:--</strong>
+                <button id="competitive-claim" class="primary-button" type="button" disabled>
+                    Claim deposit
+                </button>
+            </div>
+        </section>
+
+        <div id="competitive-error" class="inline-alert competitive-error" role="alert" hidden></div>
+    </aside>
+</main>
+</body>
+</html>

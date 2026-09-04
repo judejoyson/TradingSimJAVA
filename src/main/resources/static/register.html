@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Create account | ReplayLab</title>
+    <link rel="stylesheet" href="/simulator.css">
+    <script src="/register.js" defer></script>
+</head>
+<body class="auth-page">
+<main class="auth-card">
+    <a class="brand" href="/">
+        <span class="brand-icon" aria-hidden="true">R</span>
+        <span>ReplayLab</span>
+    </a>
+    <p class="eyebrow">Create your workspace</p>
+    <h1>Start practicing</h1>
+    <p class="auth-copy">Your portfolio, backtests, and journal remain private to your account.</p>
+    <p id="competitive-notice" class="inline-alert" hidden>
+        Competitive mode requires an account. Create one below, or sign in if you already have one.
+    </p>
+    <form id="register-form">
+        <label>Display name
+            <input id="display-name" maxlength="80" autocomplete="name" required>
+        </label>
+        <label>Email
+            <input id="email" type="email" maxlength="254" autocomplete="email" required>
+        </label>
+        <label>Password
+            <input id="password" type="password" minlength="8" maxlength="128"
+                   autocomplete="new-password" required>
+        </label>
+        <small>Use at least 8 characters.</small>
+        <div id="register-error" class="inline-alert" role="alert" hidden></div>
+        <button id="register-button" class="primary-button" type="submit">Create account</button>
+    </form>
+    <p class="auth-switch">Already registered? <a href="/login.html">Sign in</a></p>
+</main>
+</body>
+</html>

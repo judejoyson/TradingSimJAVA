@@ -168,14 +168,27 @@ function sendBacktest(payload) {
         formData.append("file", elements.csvFile.files[0]);
         return fetch("/api/backtests/csv", {
             method: "POST",
+            headers: csrfHeaders(),
             body: formData
         });
     }
     return fetch("/api/backtests", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: {
+            "Content-Type": "application/json",
+            ...csrfHeaders()
+        },
         body: JSON.stringify(payload)
     });
+}
+
+function csrfHeaders() {
+    const cookie = document.cookie
+        .split("; ")
+        .find(value => value.startsWith("XSRF-TOKEN="));
+    return cookie
+        ? {"X-XSRF-TOKEN": decodeURIComponent(cookie.split("=")[1])}
+        : {};
 }
 
 function renderResult(result) {

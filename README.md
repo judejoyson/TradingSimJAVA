@@ -37,6 +37,10 @@ Requirements:
 - Maven 3.9 or newer
 - Internet access for the Lightweight Charts JavaScript file
 
+Local development uses an embedded file-backed H2 database in `data/`, so no
+database installation or password is needed. PostgreSQL is activated only by
+the production profile described below.
+
 Start Spring Boot:
 
 ```powershell
@@ -44,6 +48,10 @@ mvn spring-boot:run
 ```
 
 Open <http://localhost:8080>.
+
+Create an account at <http://localhost:8080/register.html>. Authentication uses
+an HTTP-only server session and BCrypt password hashes. The strategy backtester,
+saved results, paper account, trade history, and journal require sign-in.
 
 Run all tests:
 
@@ -152,6 +160,66 @@ Backtest endpoints:
 2015 anchor. This makes comparisons reproducible and keeps the application
 usable without an external data subscription. Replace that service with a
 provider adapter when actual exchange history is required.
+
+## Persistence and hosting safeguards
+
+Spring Data JPA stores each user's data separately in PostgreSQL:
+
+- user identity and BCrypt password hash;
+- paper account, positions, and executed trades;
+- the latest saved historical backtests;
+- private journal entries.
+
+Paper accounts offer two modes. **Normal** is the default and starts with
+`$100,000` without scheduled deposits. **Competitive** requires a registered
+account, starts with `$250,000`, and makes a `$75,000` allowance claimable after
+90 minutes. The player must claim it from the workspace; missed intervals do
+not accumulate, and each claim starts a new 90-minute timer. Changing modes
+resets the portfolio and trade history to keep the two rule sets separate.
+
+Historical replay and backtesting remain available without an account.
+Competitive players appear on a private leaderboard ranked by realized return,
+closed-trade Sharpe ratio, or the percentage of profitable exits. Allowance
+deposits count as funding rather than profit when return is calculated.
+Competitive account results and each player's active random simulation seed and
+progress are stored in the shared database. After deployment, players can use
+their own individual simulations while competing on the same global leaderboard.
+After a player trades or claims a deposit, Competitive mode is locked to prevent
+losing results from being erased by resetting the account.
+After activating Competitive mode in **My workspace**, use **Open day trading**
+to generate a fresh random candlestick simulation, reveal candles at selectable
+speeds, submit buy or sell market orders at the server's current generated
+price, monitor positions, and claim an available allowance. Starting another
+simulation creates a new unpredictable candle path.
+
+Every successful backtest is saved automatically and appears in **My
+workspace**. Database credentials and the optional Finnhub key are supplied by
+environment variables.
+
+The HTTP layer includes:
+
+- a 5 MB multipart upload limit and a 25,000-row CSV limit;
+- strict CSV headers, numeric values, OHLC relationships, and date ordering;
+- CSRF protection for authenticated writes;
+- Content Security Policy, clickjacking, MIME sniffing, referrer, permissions,
+  and HSTS headers;
+- per-user/IP API rate limiting (120 requests/minute and 10 CSV uploads/minute);
+- forwarded-header support for HTTPS terminated by a trusted hosting proxy.
+
+For an HTTPS deployment, set both:
+
+```text
+SPRING_PROFILES_ACTIVE=production
+DATABASE_URL=jdbc:postgresql://database-host:5432/replaylab
+DATABASE_USERNAME=replaylab
+DATABASE_PASSWORD=replace-with-a-strong-password
+```
+
+The production profile automatically requires HTTPS and secure session cookies.
+The hosting platform must terminate TLS and forward the original request
+scheme. Secrets must remain in the provider's secret manager, never in Git.
+Provider-specific deployment files are intentionally deferred until a hosting
+service is selected.
 
 ## Backend walkthrough
 

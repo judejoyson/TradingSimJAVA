@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign in | ReplayLab</title>
+    <link rel="stylesheet" href="/simulator.css">
+</head>
+<body class="auth-page">
+<main class="auth-card">
+    <a class="brand" href="/">
+        <span class="brand-icon" aria-hidden="true">R</span>
+        <span>ReplayLab</span>
+    </a>
+    <p class="eyebrow">Private workspace</p>
+    <h1>Welcome back</h1>
+    <p class="auth-copy">Sign in to access your portfolio, saved backtests, and journal.</p>
+    <p id="login-error" class="inline-alert" hidden>That email or password was not accepted.</p>
+    <form action="/login" method="post">
+        <label>Email
+            <input type="email" name="email" autocomplete="email" required>
+        </label>
+        <label>Password
+            <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <button class="primary-button" type="submit">Sign in</button>
+    </form>
+    <p class="auth-switch">New to ReplayLab? <a href="/register.html">Create an account</a></p>
+</main>
+<script src="/login.js"></script>
+</body>
+</html>

@@ -4,13 +4,18 @@ import com.tradingsim.replay.ReplayCatalog.InstrumentDefinition;
 import com.tradingsim.replay.ReplayCatalog.MarketDefinition;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.ByteBuffer;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  * Builds repeatable replay sessions from catalog selections.
@@ -26,6 +31,7 @@ public final class ReplayDataService {
             Instant.parse("2026-01-05T14:30:00Z");
 
     private final ReplayCatalog catalog;
+    private final SecureRandom sessionRandom = new SecureRandom();
 
     public ReplayDataService(ReplayCatalog catalog) {
         this.catalog = catalog;
@@ -57,15 +63,51 @@ public final class ReplayDataService {
                 instrument.pricePrecision(),
                 INITIAL_BARS,
                 market.executionProfile(),
-                generateCandles(market, instrument, timeframe));
+                generateCandles(market, instrument, timeframe,
+                        (market.id() + ":" + instrument.symbol() + ":" + timeframe.id()).hashCode()));
+    }
+
+    public ReplaySession createRandomSession(
+            String requestedSymbol,
+            String requestedTimeframe) {
+        return createSeededRandomSession(requestedSymbol, requestedTimeframe).replay();
+    }
+
+    public SeededReplaySession createSeededRandomSession(
+            String requestedSymbol,
+            String requestedTimeframe) {
+        long seed = sessionRandom.nextLong();
+        return new SeededReplaySession(
+                seed,
+                createRandomSession(requestedSymbol, requestedTimeframe, seed));
+    }
+
+    public ReplaySession createRandomSession(
+            String requestedSymbol,
+            String requestedTimeframe,
+            long seed) {
+        MarketDefinition market = catalog.market("STOCKS");
+        InstrumentDefinition instrument = catalog.instrument(market, requestedSymbol);
+        TimeframeOption timeframe = catalog.timeframe(requestedTimeframe);
+        return new ReplaySession(
+                market.id(),
+                market.label(),
+                instrument.symbol(),
+                instrument.name(),
+                timeframe.id(),
+                timeframe.minutes(),
+                instrument.pricePrecision(),
+                INITIAL_BARS,
+                market.executionProfile(),
+                generateCandles(market, instrument, timeframe, seed));
     }
 
     private List<ReplayCandle> generateCandles(
             MarketDefinition market,
             InstrumentDefinition instrument,
-            TimeframeOption timeframe) {
-        long seed = (market.id() + ":" + instrument.symbol() + ":" + timeframe.id()).hashCode();
-        Random random = new Random(seed);
+            TimeframeOption timeframe,
+            long seed) {
+        DeterministicSecureRandom random = new DeterministicSecureRandom(seed);
         List<ReplayCandle> candles = new ArrayList<>(CANDLE_COUNT);
         BigDecimal previousClose = instrument.startingPriceValue();
         Instant candleTime = SESSION_ANCHOR;
@@ -121,5 +163,55 @@ public final class ReplayDataService {
             case "CRYPTO" -> 28_000L;
             default -> 50_000L;
         };
+    }
+
+    /**
+     * Reconstructs a session from its stored seed without exposing the
+     * recoverable 48-bit state used by {@link java.util.Random}.
+     */
+    private static final class DeterministicSecureRandom {
+        private final Mac mac;
+        private long counter;
+        private Double nextGaussian;
+
+        private DeterministicSecureRandom(long seed) {
+            try {
+                byte[] key = MessageDigest.getInstance("SHA-256")
+                        .digest(ByteBuffer.allocate(Long.BYTES).putLong(seed).array());
+                mac = Mac.getInstance("HmacSHA256");
+                mac.init(new SecretKeySpec(key, "HmacSHA256"));
+            } catch (GeneralSecurityException exception) {
+                throw new IllegalStateException(
+                        "The secure replay generator is unavailable.", exception);
+            }
+        }
+
+        private double nextDouble() {
+            return (nextLong() >>> 11) * 0x1.0p-53;
+        }
+
+        private int nextInt(int bound) {
+            return (int) Math.floor(nextDouble() * bound);
+        }
+
+        private double nextGaussian() {
+            if (nextGaussian != null) {
+                double value = nextGaussian;
+                nextGaussian = null;
+                return value;
+            }
+            double first = Math.max(nextDouble(), Double.MIN_VALUE);
+            double second = nextDouble();
+            double magnitude = Math.sqrt(-2.0 * Math.log(first));
+            double angle = 2.0 * Math.PI * second;
+            nextGaussian = magnitude * Math.sin(angle);
+            return magnitude * Math.cos(angle);
+        }
+
+        private long nextLong() {
+            byte[] digest = mac.doFinal(
+                    ByteBuffer.allocate(Long.BYTES).putLong(counter++).array());
+            return ByteBuffer.wrap(digest).getLong();
+        }
     }
 }
