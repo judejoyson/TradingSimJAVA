@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Practice trade planning with historical market replay.">
+    <title>ReplayLab Trading Simulator</title>
+    <link rel="stylesheet" href="/simulator.css">
+    <script src="/home.js" defer></script>
+</head>
+<body class="home-page">
+<!-- Shared brand header. The chart page uses the same visual identity. -->
+<header class="topbar home-topbar">
+    <a class="brand" href="/">
+        <span class="brand-icon" aria-hidden="true">R</span>
+        <span>ReplayLab</span>
+    </a>
+    <nav class="home-nav" aria-label="Main navigation">
+        <a href="/backtest.html">Strategy backtester</a>
+        <a id="competitive-link" href="/register.html?competitive=true">Competitive mode</a>
+        <a href="/account.html">My workspace</a>
+        <a id="sign-in-link" href="/login.html">Sign in</a>
+        <a id="signed-in-user" href="/account.html" hidden></a>
+        <span class="training-badge">Risk-free practice</span>
+    </nav>
+</header>
+
+<main>
+    <!-- The hero explains the product while the form creates a replay URL. -->
+    <section class="home-hero">
+        <div class="hero-copy">
+            <p class="eyebrow">Historical market simulator</p>
+            <h1>Practice the decision,<br><em>not the prediction.</em></h1>
+            <p class="hero-description">
+                Build a trade plan, replay unseen candles, and learn how price
+                behaves around your entry, stop-loss, and target.
+            </p>
+            <div class="feature-row" aria-label="Simulator features">
+                <span>Deterministic sessions</span>
+                <span>Realistic candles</span>
+                <span>Instant review</span>
+            </div>
+        </div>
+
+        <!-- home.js fills market, instrument, and timeframe choices from Java. -->
+        <section class="setup-card" aria-labelledby="setup-title">
+            <div class="setup-heading">
+                <span class="step-number">01</span>
+                <div>
+                    <p class="eyebrow">New simulation</p>
+                    <h2 id="setup-title">Choose your market</h2>
+                </div>
+            </div>
+
+            <form id="simulation-form">
+                <fieldset>
+                    <legend>Asset class</legend>
+                    <div id="market-options" class="market-options">
+                        <div class="loading-choice">Loading markets…</div>
+                    </div>
+                </fieldset>
+
+                <label for="instrument">Instrument</label>
+                <div class="select-wrap">
+                    <select id="instrument" name="symbol" required disabled>
+                        <option>Loading…</option>
+                    </select>
+                </div>
+
+                <fieldset>
+                    <legend>Chart timeframe</legend>
+                    <div id="timeframe-options" class="timeframe-options"></div>
+                </fieldset>
+
+                <div id="home-error" class="inline-alert" role="alert" hidden></div>
+
+                <button id="start-button" class="primary-button start-button" type="submit" disabled>
+                    <span>Start simulation</span>
+                    <span aria-hidden="true">→</span>
+                </button>
+            </form>
+        </section>
+    </section>
+
+    <!-- Static onboarding helps a first-time user understand the three actions. -->
+    <section class="how-it-works" aria-labelledby="how-title">
+        <div>
+            <p class="eyebrow">The training loop</p>
+            <h2 id="how-title">Plan. Replay. Review.</h2>
+        </div>
+        <ol class="process-list">
+            <li>
+                <span>01</span>
+                <strong>Set your levels</strong>
+                <p>Double-click the chart to place an entry, stop, and target.</p>
+            </li>
+            <li>
+                <span>02</span>
+                <strong>Reveal the market</strong>
+                <p>Play unseen candles at the speed that fits your practice.</p>
+            </li>
+            <li>
+                <span>03</span>
+                <strong>Study the result</strong>
+                <p>Review the outcome, risk-to-reward ratio, and final P&amp;L.</p>
+            </li>
+        </ol>
+    </section>
+</main>
+
+<footer class="home-footer">
+    <span>Educational simulation only. Generated market data is not investment advice.</span>
+    <span>Created by Jude Joyson</span>
+</footer>
+</body>
+</html>
